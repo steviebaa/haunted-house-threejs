@@ -16,40 +16,70 @@ const scene = new THREE.Scene();
 /** Textures */
 const textureLoader = new THREE.TextureLoader();
 
+/**
+ * @description Load a group of textures
+ * @param {"door"|"bricks"|"grass"} element
+ * @param {string[]} textures map | alphaMap | aoMap | displacementMap | normalMap | metalnessMap | roughnessMap
+ */
+const loadUtil = (element, textures) => {
+	const params = {
+		map: null,
+		alphaMap: null,
+		aoMap: null,
+		displacementMap: null,
+		normalMap: null,
+		metalnessMap: null,
+		roughnessMap: null,
+	};
+	textures.forEach((tx) => {
+		params[tx] = textureLoader.load(`/textures/${element}/${tx}.jpg`);
+	});
+	return params;
+};
+
 // Door textures
-const doorColorTexture = textureLoader.load('/textures/door/color.jpg');
-const doorAlphaTexture = textureLoader.load('/textures/door/alpha.jpg');
-const doorAmbientOcclusionTexture = textureLoader.load('/textures/door/ambientOcclusion.jpg');
-const doorHeightTexture = textureLoader.load('/textures/door/height.jpg');
-const doorNormalTexture = textureLoader.load('/textures/door/normal.jpg');
-const doorMetalnessTexture = textureLoader.load('/textures/door/metalness.jpg');
-const doorRoughnessTexture = textureLoader.load('/textures/door/roughness.jpg');
+const doorParams = loadUtil('door', [
+	'map',
+	'alphaMap',
+	'aoMap',
+	'displacementMap',
+	'normalMap',
+	'metalnessMap',
+	'roughnessMap',
+]);
+doorParams.transparent = true;
+doorParams.displacementScale = 0.1;
 
 // Wall textures
-const bricksColorTexture = textureLoader.load('/textures/bricks/color.jpg');
-const bricksAmbientOcclusionTexture = textureLoader.load('/textures/bricks/ambientOcclusion.jpg');
-const bricksNormalTexture = textureLoader.load('/textures/bricks/normal.jpg');
-const bricksRoughnessTexture = textureLoader.load('/textures/bricks/roughness.jpg');
+const bricksParams = loadUtil('bricks', [
+	'map',
+	'aoMap',
+	'normalMap',
+	'roughnessMap',
+]);
 
 // Ground textures
-const grassColorTexture = textureLoader.load('/textures/grass/color.jpg');
-const grassAmbientOcclusionTexture = textureLoader.load('/textures/grass/ambientOcclusion.jpg');
-const grassNormalTexture = textureLoader.load('/textures/grass/normal.jpg');
-const grassRoughnessTexture = textureLoader.load('/textures/grass/roughness.jpg');
-grassColorTexture.repeat.set(8, 8);
-grassAmbientOcclusionTexture.repeat.set(8, 8);
-grassNormalTexture.repeat.set(8, 8);
-grassRoughnessTexture.repeat.set(8, 8);
+const grassParams = loadUtil('grass', [
+	'map',
+	'aoMap',
+	'normalMap',
+	'roughnessMap',
+]);
 
-grassColorTexture.wrapS = THREE.RepeatWrapping;
-grassAmbientOcclusionTexture.wrapS = THREE.RepeatWrapping;
-grassNormalTexture.wrapS = THREE.RepeatWrapping;
-grassRoughnessTexture.wrapS = THREE.RepeatWrapping;
+grassParams.map.repeat.set(8, 8);
+grassParams.aoMap.repeat.set(8, 8);
+grassParams.normalMap.repeat.set(8, 8);
+grassParams.roughnessMap.repeat.set(8, 8);
 
-grassColorTexture.wrapT = THREE.RepeatWrapping;
-grassAmbientOcclusionTexture.wrapT = THREE.RepeatWrapping;
-grassNormalTexture.wrapT = THREE.RepeatWrapping;
-grassRoughnessTexture.wrapT = THREE.RepeatWrapping;
+grassParams.map.wrapS = THREE.RepeatWrapping;
+grassParams.aoMap.wrapS = THREE.RepeatWrapping;
+grassParams.normalMap.wrapS = THREE.RepeatWrapping;
+grassParams.roughnessMap.wrapS = THREE.RepeatWrapping;
+
+grassParams.map.wrapT = THREE.RepeatWrapping;
+grassParams.aoMap.wrapT = THREE.RepeatWrapping;
+grassParams.normalMap.wrapT = THREE.RepeatWrapping;
+grassParams.roughnessMap.wrapT = THREE.RepeatWrapping;
 
 /** House */
 // Create group
@@ -60,12 +90,7 @@ scene.add(house);
 const wallHeight = 3;
 const walls = new THREE.Mesh(
 	new THREE.BoxBufferGeometry(4, wallHeight, 4),
-	new THREE.MeshStandardMaterial({
-		map: bricksColorTexture,
-		aoMap: bricksAmbientOcclusionTexture,
-		normalMap: bricksNormalTexture,
-		roughnessMap: bricksRoughnessTexture,
-	})
+	new THREE.MeshStandardMaterial(bricksParams)
 );
 walls.geometry.setAttribute(
 	'uv2',
@@ -88,17 +113,7 @@ house.add(roof);
 // Door
 const door = new THREE.Mesh(
 	new THREE.PlaneGeometry(2.2, 2.2, 100, 100),
-	new THREE.MeshStandardMaterial({
-		map: doorColorTexture,
-		transparent: true,
-		alphaMap: doorAlphaTexture,
-		aoMap: doorAmbientOcclusionTexture,
-		displacementMap: doorHeightTexture,
-		displacementScale: 0.1,
-		normalMap: doorNormalTexture,
-		metalnessMap: doorMetalnessTexture,
-		roughnessMap: doorRoughnessTexture,
-	})
+	new THREE.MeshStandardMaterial(doorParams)
 );
 door.geometry.setAttribute(
 	'uv2',
@@ -112,12 +127,7 @@ house.add(door);
 // Floor
 const floor = new THREE.Mesh(
 	new THREE.PlaneGeometry(20, 20),
-	new THREE.MeshStandardMaterial({
-		map: grassColorTexture,
-		aoMap: grassAmbientOcclusionTexture,
-		normalMap: grassNormalTexture,
-		roughnessMap: grassRoughnessTexture,
-	})
+	new THREE.MeshStandardMaterial(grassParams)
 );
 floor.geometry.setAttribute(
 	'uv2',
@@ -253,7 +263,12 @@ window.addEventListener('resize', () => {
 
 /** Camera */
 // Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100);
+const camera = new THREE.PerspectiveCamera(
+	75,
+	sizes.width / sizes.height,
+	0.1,
+	100
+);
 camera.position.x = 7;
 camera.position.y = 3;
 camera.position.z = 7;
@@ -288,11 +303,14 @@ const tick = () => {
 	const ghost2Angle = -elapsedTime * 0.32;
 	ghost2.position.x = Math.cos(ghost2Angle) * 5;
 	ghost2.position.z = Math.sin(ghost2Angle) * 5;
-	ghost2.position.y = Math.sin(elapsedTime * 4) + Math.sin(elapsedTime * 2.5) + 1;
+	ghost2.position.y =
+		Math.sin(elapsedTime * 4) + Math.sin(elapsedTime * 2.5) + 1;
 
 	const ghost3Angle = -elapsedTime * 0.18;
-	ghost3.position.x = Math.cos(ghost3Angle) * (7 + Math.sin(elapsedTime * 0.32));
-	ghost3.position.z = Math.sin(ghost3Angle) * (7 + Math.sin(elapsedTime * 0.5));
+	ghost3.position.x =
+		Math.cos(ghost3Angle) * (7 + Math.sin(elapsedTime * 0.32));
+	ghost3.position.z =
+		Math.sin(ghost3Angle) * (7 + Math.sin(elapsedTime * 0.5));
 	ghost3.position.y = Math.sin(elapsedTime * 4) + Math.sin(elapsedTime * 2.5);
 
 	// Update controls
