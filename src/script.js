@@ -3,6 +3,10 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import * as dat from 'dat.gui';
 
+// For GH Pages
+const baseUrl =
+	process.env.NODE_ENV === 'development' ? '' : '/haunted-house-threejs/dist';
+
 /** Base */
 // Debug
 const gui = new dat.GUI();
@@ -32,7 +36,9 @@ const loadUtil = (element, textures) => {
 		roughnessMap: null,
 	};
 	textures.forEach((tx) => {
-		params[tx] = textureLoader.load(`/textures/${element}/${tx}.jpg`);
+		params[tx] = textureLoader.load(
+			`${baseUrl}/textures/${element}/${tx}.jpg`
+		);
 	});
 	return params;
 };
