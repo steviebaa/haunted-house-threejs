@@ -8,8 +8,6 @@ module.exports = {
 	output: {
 		filename: 'bundle.[contenthash].js',
 		path: path.resolve(__dirname, '../dist'),
-		publicPath:
-			argv.mode === 'production' ? '/haunted-house-threejs/dist/' : '/',
 	},
 	devtool: 'source-map',
 	plugins: [
